@@ -9,3 +9,12 @@ pub use rule_content::*;
 pub use rule_explore::*;
 pub use rule_search::*;
 pub use rule_toc::*;
+
+#[derive(Debug, Clone)]
+pub struct JsonRule {
+    pub book_info: JsonRuleBookInfo,
+    pub content: JsonRuleContent,
+    pub explore: Option<JsonRuleExplore>,
+    pub search: JsonRuleSearch,
+    pub toc: JsonRuleTocWith,
+}

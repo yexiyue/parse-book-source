@@ -1,4 +1,4 @@
-use crate::{ParseError, Result};
+use crate::{ParseError, Result, Variables};
 use anyhow::anyhow;
 use regex::Regex;
 use serde_json::Value;
@@ -6,13 +6,13 @@ use serde_json::Value;
 use super::{parse_template, split_preserving_delimiters};
 
 #[derive(Debug, Clone, Default)]
-pub struct DataWithRegex {
+pub struct JsonData {
     pub data: String,
     pub regex: Option<Regex>,
     pub replace_content: Option<String>,
 }
 
-impl DataWithRegex {
+impl JsonData {
     fn replace_all(&self, haystack: &str) -> Result<String> {
         if let Some(re) = &self.regex {
             Ok(re
@@ -26,25 +26,20 @@ impl DataWithRegex {
         }
     }
 
-    pub fn set_book_id(&self, book_id: &str) -> Result<Self> {
-        let mut new = self.clone();
-        let regex = Regex::new(r"@get:\{book\}")?;
-        new.data = regex.replace_all(&self.data, book_id).into();
-        Ok(new.clone())
-    }
-
-    pub fn parse_data(&self, data: &Value) -> Result<String> {
-        let value = parse_template(&self.data, data)?;
+    pub fn parse_data(&self, data: &Value, variables: &mut Variables) -> Result<String> {
+        let value = variables.put(&self.data, data)?;
+        let value = variables.get(&value)?;
+        let value = parse_template(&value, data, variables)?;
         self.replace_all(&value)
     }
 }
 
-impl TryFrom<&str> for DataWithRegex {
+impl TryFrom<&str> for JsonData {
     type Error = ParseError;
     fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
         let str = split_preserving_delimiters(value);
 
-        let mut res = DataWithRegex::default();
+        let mut res = JsonData::default();
 
         res.data = str.get(0).ok_or(anyhow!("data is not found"))?.to_string();
 
@@ -60,9 +55,9 @@ impl TryFrom<&str> for DataWithRegex {
     }
 }
 
-impl TryFrom<String> for DataWithRegex {
+impl TryFrom<String> for JsonData {
     type Error = ParseError;
     fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
-        DataWithRegex::try_from(value.as_str())
+        JsonData::try_from(value.as_str())
     }
 }

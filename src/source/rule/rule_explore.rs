@@ -1,5 +1,6 @@
 use crate::{
-    utils::{json_path, DataWithRegex},
+    utils::{json_path, JsonData},
+    Variables,
     BookList, BookListItem, ParseError, Result,
 };
 use anyhow::anyhow;
@@ -20,18 +21,18 @@ pub struct RuleExplore {
 }
 
 #[derive(Debug, Clone)]
-pub struct RuleExploreWithRegex {
+pub struct JsonRuleExplore {
     pub book_list: String,
-    pub author: DataWithRegex,
-    pub intro: DataWithRegex,
-    pub kind: DataWithRegex,
-    pub name: DataWithRegex,
-    pub word_count: DataWithRegex,
-    pub book_url: DataWithRegex,
-    pub cover_url: DataWithRegex,
+    pub author: JsonData,
+    pub intro: JsonData,
+    pub kind: JsonData,
+    pub name: JsonData,
+    pub word_count: JsonData,
+    pub book_url: JsonData,
+    pub cover_url: JsonData,
 }
 
-impl TryFrom<&RuleExplore> for RuleExploreWithRegex {
+impl TryFrom<&RuleExplore> for JsonRuleExplore {
     type Error = ParseError;
     fn try_from(value: &RuleExplore) -> std::result::Result<Self, Self::Error> {
         Ok(Self {
@@ -47,15 +48,15 @@ impl TryFrom<&RuleExplore> for RuleExploreWithRegex {
     }
 }
 
-impl TryFrom<RuleExplore> for RuleExploreWithRegex {
+impl TryFrom<RuleExplore> for JsonRuleExplore {
     type Error = ParseError;
     fn try_from(value: RuleExplore) -> std::result::Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
 
-impl RuleExploreWithRegex {
-    pub fn parse_book_list(&self, data: &Value) -> Result<BookList> {
+impl JsonRuleExplore {
+    pub fn parse_book_list(&self, data: &Value, variables: &mut Variables) -> Result<BookList> {
         let book_list = if self.book_list.as_str().ends_with("[*]") {
             json_path(data, self.book_list.as_str())?
         } else {
@@ -68,13 +69,13 @@ impl RuleExploreWithRegex {
             .ok_or(anyhow!("book_list is not array"))?
         {
             res.push(BookListItem {
-                author: self.author.parse_data(item)?,
-                intro: self.intro.parse_data(item)?,
-                kind: self.kind.parse_data(item)?,
-                name: self.name.parse_data(item)?,
-                word_count: self.word_count.parse_data(item)?,
-                book_url: self.book_url.parse_data(item)?,
-                cover_url: self.cover_url.parse_data(item).ok(),
+                author: self.author.parse_data(item, variables)?,
+                intro: self.intro.parse_data(item, variables)?,
+                kind: self.kind.parse_data(item, variables)?,
+                name: self.name.parse_data(item, variables)?,
+                word_count: self.word_count.parse_data(item, variables)?,
+                book_url: self.book_url.parse_data(item, variables)?,
+                cover_url: self.cover_url.parse_data(item, variables).ok(),
             });
         }
 

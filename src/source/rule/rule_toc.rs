@@ -1,7 +1,8 @@
+use crate::Variables;
 use crate::{chapter_list::Chapter, Result};
 use crate::{
     chapter_list::ChapterList,
-    utils::{json_path, DataWithRegex},
+    utils::{json_path, JsonData},
     ParseError,
 };
 use anyhow::anyhow;
@@ -17,13 +18,13 @@ pub struct RuleToc {
 }
 
 #[derive(Debug, Clone)]
-pub struct RuleTocWithRegex {
+pub struct JsonRuleTocWith {
     pub chapter_list: String,
-    pub chapter_name: DataWithRegex,
-    pub chapter_url: DataWithRegex,
+    pub chapter_name: JsonData,
+    pub chapter_url: JsonData,
 }
 
-impl TryFrom<&RuleToc> for RuleTocWithRegex {
+impl TryFrom<&RuleToc> for JsonRuleTocWith {
     type Error = ParseError;
     fn try_from(value: &RuleToc) -> std::result::Result<Self, Self::Error> {
         Ok(Self {
@@ -34,20 +35,28 @@ impl TryFrom<&RuleToc> for RuleTocWithRegex {
     }
 }
 
-impl TryFrom<RuleToc> for RuleTocWithRegex {
+impl TryFrom<RuleToc> for JsonRuleTocWith {
     type Error = ParseError;
     fn try_from(value: RuleToc) -> std::result::Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
 
-impl RuleTocWithRegex {
-    pub fn parse_chapter_list(&self, data: &Value, book_id: &str) -> Result<ChapterList> {
+impl JsonRuleTocWith {
+    pub fn parse_chapter_list(
+        &self,
+        data: &Value,
+        variables: &mut Variables,
+    ) -> Result<ChapterList> {
         let chapter_list = if self.chapter_list.as_str().ends_with("[*]") {
             json_path(data, self.chapter_list.as_str())?
         } else {
             json_path(data, &format!("{}[*]", self.chapter_list))?
         };
+
+        if chapter_list.is_null() {
+            return Ok(ChapterList::new(vec![]));
+        }
 
         let mut res = vec![];
         for item in chapter_list
@@ -55,8 +64,8 @@ impl RuleTocWithRegex {
             .ok_or(anyhow!("book_list is not array"))?
         {
             res.push(Chapter {
-                chapter_name: self.chapter_name.parse_data(item)?,
-                chapter_url: self.chapter_url.set_book_id(book_id)?.parse_data(item)?,
+                chapter_name: self.chapter_name.parse_data(item, variables)?,
+                chapter_url: self.chapter_url.parse_data(item, variables)?,
             });
         }
 

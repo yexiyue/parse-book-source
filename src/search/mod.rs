@@ -22,10 +22,9 @@ impl Search {
     pub async fn get_book_list(
         &self,
         client: &HttpClient,
-        page: usize,
-        key: &str,
+        params: Params,
     ) -> Result<Response> {
-        let url = parse_url(&self.url, &Params::new().key(key).page(page), None)?;
+        let url = parse_url(&self.url, &params, None)?;
         client.get(&url).await
     }
 }

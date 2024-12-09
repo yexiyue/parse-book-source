@@ -1,6 +1,6 @@
 use crate::{
-    utils::{json_path, replace_all, DataWithRegex},
-    Result,
+    utils::{json_path, replace_all, JsonData},
+    Result, Variables,
 };
 use anyhow::anyhow;
 use regex::Regex;
@@ -10,6 +10,7 @@ use serde_json::Value;
 pub struct Params {
     pub key: Option<String>,
     pub page: Option<usize>,
+    pub page_size: Option<usize>,
 }
 
 impl Params {
@@ -24,6 +25,11 @@ impl Params {
 
     pub fn page(mut self, page: usize) -> Self {
         self.page = Some(page);
+        self
+    }
+
+    pub fn page_size(mut self, page_size: usize) -> Self {
+        self.page_size = Some(page_size);
         self
     }
 }
@@ -42,6 +48,13 @@ pub fn parse_url(url: &str, params: &Params, data: Option<&Value>) -> Result<Str
                 let page = params.page.clone().ok_or(anyhow!("page is not found"))?;
                 Ok(page.to_string())
             }
+            "pageSize" => {
+                let page_size = params
+                    .page_size
+                    .clone()
+                    .ok_or(anyhow!("page_size is not found"))?;
+                Ok(page_size.to_string())
+            }
             path => {
                 let Some(data) = data else {
                     return Err(anyhow!("data is not found").into());
@@ -53,7 +66,7 @@ pub fn parse_url(url: &str, params: &Params, data: Option<&Value>) -> Result<Str
     })
 }
 
-pub fn parse_template(template: &str, data: &Value) -> Result<String> {
+pub fn parse_template(template: &str, data: &Value, variables: &mut Variables) -> Result<String> {
     let regex = Regex::new(r"\{\{(.*?)\}\}")?;
 
     if let Some(_) = template.find("{{") {
@@ -62,8 +75,8 @@ pub fn parse_template(template: &str, data: &Value) -> Result<String> {
 
             match key.as_str() {
                 path => {
-                    let data_with_regex = DataWithRegex::try_from(path)?;
-                    data_with_regex.parse_data(data)
+                    let data_with_regex = JsonData::try_from(path)?;
+                    data_with_regex.parse_data(data, variables)
                 }
             }
         })

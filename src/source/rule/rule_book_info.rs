@@ -1,4 +1,4 @@
-use crate::{utils::DataWithRegex, BookInfo, ParseError, Result};
+use crate::{utils::JsonData, Variables, BookInfo, ParseError, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -16,18 +16,18 @@ pub struct RuleBookInfo {
 }
 
 #[derive(Debug, Clone)]
-pub struct RuleBookInfoWithRegex {
-    pub author: DataWithRegex,
-    pub cover_url: DataWithRegex,
-    pub intro: DataWithRegex,
-    pub kind: DataWithRegex,
-    pub last_chapter: DataWithRegex,
-    pub name: DataWithRegex,
-    pub toc_url: DataWithRegex,
-    pub word_count: DataWithRegex,
+pub struct JsonRuleBookInfo {
+    pub author: JsonData,
+    pub cover_url: JsonData,
+    pub intro: JsonData,
+    pub kind: JsonData,
+    pub last_chapter: JsonData,
+    pub name: JsonData,
+    pub toc_url: JsonData,
+    pub word_count: JsonData,
 }
 
-impl TryFrom<&RuleBookInfo> for RuleBookInfoWithRegex {
+impl TryFrom<&RuleBookInfo> for JsonRuleBookInfo {
     type Error = ParseError;
     fn try_from(value: &RuleBookInfo) -> std::result::Result<Self, Self::Error> {
         Ok(Self {
@@ -43,24 +43,24 @@ impl TryFrom<&RuleBookInfo> for RuleBookInfoWithRegex {
     }
 }
 
-impl TryFrom<RuleBookInfo> for RuleBookInfoWithRegex {
+impl TryFrom<RuleBookInfo> for JsonRuleBookInfo {
     type Error = ParseError;
     fn try_from(value: RuleBookInfo) -> std::result::Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
 
-impl RuleBookInfoWithRegex {
-    pub async fn parse_book_info(&self, data: &Value) -> Result<BookInfo> {
+impl JsonRuleBookInfo {
+    pub fn parse_book_info(&self, data: &Value, variables: &mut Variables) -> Result<BookInfo> {
         Ok(BookInfo {
-            author: self.author.parse_data(&data)?,
-            cover_url: self.cover_url.parse_data(&data).ok(),
-            intro: self.intro.parse_data(&data)?,
-            kind: self.kind.parse_data(&data)?,
-            last_chapter: self.last_chapter.parse_data(&data)?,
-            name: self.name.parse_data(&data)?,
-            toc_url: self.toc_url.parse_data(&data)?,
-            word_count: self.word_count.parse_data(&data)?,
+            author: self.author.parse_data(&data, variables)?,
+            cover_url: self.cover_url.parse_data(&data, variables).ok(),
+            intro: self.intro.parse_data(&data, variables)?,
+            kind: self.kind.parse_data(&data, variables)?,
+            last_chapter: self.last_chapter.parse_data(&data, variables)?,
+            name: self.name.parse_data(&data, variables)?,
+            toc_url: self.toc_url.parse_data(&data, variables)?,
+            word_count: self.word_count.parse_data(&data, variables)?,
         })
     }
 }

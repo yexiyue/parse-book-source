@@ -1,5 +1,6 @@
+use crate::Variables;
 use crate::Result;
-use crate::{utils::DataWithRegex, ParseError};
+use crate::{utils::JsonData, ParseError};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -9,7 +10,7 @@ pub struct RuleContent {
     pub content: String,
 }
 
-impl TryFrom<&RuleContent> for RuleContentWithRegex {
+impl TryFrom<&RuleContent> for JsonRuleContent {
     type Error = ParseError;
 
     fn try_from(value: &RuleContent) -> std::result::Result<Self, Self::Error> {
@@ -19,19 +20,20 @@ impl TryFrom<&RuleContent> for RuleContentWithRegex {
     }
 }
 
-impl TryFrom<RuleContent> for RuleContentWithRegex {
+impl TryFrom<RuleContent> for JsonRuleContent {
     type Error = ParseError;
     fn try_from(value: RuleContent) -> std::result::Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
 
-pub struct RuleContentWithRegex {
-    pub content: DataWithRegex,
+#[derive(Debug, Clone)]
+pub struct JsonRuleContent {
+    pub content: JsonData,
 }
 
-impl RuleContentWithRegex {
-    pub fn parse_content(&self, data: &Value) -> Result<String> {
-        self.content.parse_data(data)
+impl JsonRuleContent {
+    pub fn parse_content(&self, data: &Value, variables: &mut Variables) -> Result<String> {
+        self.content.parse_data(data, variables)
     }
 }

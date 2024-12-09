@@ -4,23 +4,23 @@ use regex::{Captures, Regex};
 use serde_json::Value;
 use std::str::FromStr;
 
-pub mod data_with_regex;
+pub mod json_data;
 pub mod parse_url;
 
-pub use data_with_regex::*;
+pub use json_data::*;
 pub use parse_url::*;
 
 pub fn replace_all(
     re: &Regex,
     haystack: &str,
-    replacement: impl Fn(&Captures) -> Result<String>,
+    mut replacement: impl FnMut(&Captures) -> Result<String>,
 ) -> Result<String> {
     let mut new = String::with_capacity(haystack.len());
     let mut last_match = 0;
     for caps in re.captures_iter(haystack) {
         let m = caps.get(0).unwrap();
         new.push_str(&haystack[last_match..m.start()]);
-        new.push_str(&replacement(&caps)?);
+        new.push_str(&mut replacement(&caps)?);
         last_match = m.end();
     }
     new.push_str(&haystack[last_match..]);
@@ -70,6 +70,7 @@ pub fn split_preserving_delimiters(text: &str) -> Vec<String> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::Variables;
     use serde_json::json;
 
     /// 测试包含key和
@@ -81,6 +82,7 @@ mod test {
             &Params {
                 key: Some("hello".to_string()),
                 page: Some(1),
+                page_size: None,
             },
             Some(&json!({
                 "hello": "world"
@@ -95,7 +97,8 @@ mod test {
 
     #[test]
     fn test_data_with_regex() -> Result<()> {
-        let res = DataWithRegex::try_from("{{$.result.book_category_full_name##;##,}},{{$.result.book_score}}分,{{$.result.last_update_time##\\s.*}}")?;
+        let mut variables = Variables::new()?;
+        let res = JsonData::try_from("{{$.result.book_category_full_name##;##,}},{{$.result.book_score}}分,{{$.result.last_update_time##\\s.*}}")?;
         assert!(res.regex.is_none());
         let result = json!({
             "book_size": "123456",
@@ -106,7 +109,10 @@ mod test {
                 "last_update_time":"2024-08-17 22:14:42"
             }
         });
-        assert_eq!("奇幻玄幻,玄幻,10分,2024-08-17", res.parse_data(&result)?);
+        assert_eq!(
+            "奇幻玄幻,玄幻,10分,2024-08-17",
+            res.parse_data(&result, &mut variables)?
+        );
         Ok(())
     }
 }
