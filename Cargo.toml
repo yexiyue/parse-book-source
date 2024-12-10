@@ -2,6 +2,11 @@
 name = "parse-book-source"
 version = "0.1.0"
 edition = "2021"
+description = "Terminal reader for novel"
+authors = ["yexiyue <yexiyue666@qq.com>"]
+license = "MIT"
+keywords = ["CLI", "Terminal", "Novel", "Reader"]
+repository = "https://github.com/yexiyue/parse-book-source"
 
 [dependencies]
 anyhow = "1.0.94"

@@ -53,14 +53,14 @@ impl TryFrom<RuleBookInfo> for JsonRuleBookInfo {
 impl JsonRuleBookInfo {
     pub fn parse_book_info(&self, data: &Value, variables: &mut Variables) -> Result<BookInfo> {
         Ok(BookInfo {
-            author: self.author.parse_data(&data, variables)?,
-            cover_url: self.cover_url.parse_data(&data, variables).ok(),
-            intro: self.intro.parse_data(&data, variables)?,
-            kind: self.kind.parse_data(&data, variables)?,
-            last_chapter: self.last_chapter.parse_data(&data, variables)?,
-            name: self.name.parse_data(&data, variables)?,
-            toc_url: self.toc_url.parse_data(&data, variables)?,
-            word_count: self.word_count.parse_data(&data, variables)?,
+            author: self.author.parse_data(data, variables)?,
+            cover_url: self.cover_url.parse_data(data, variables).ok(),
+            intro: self.intro.parse_data(data, variables)?,
+            kind: self.kind.parse_data(data, variables)?,
+            last_chapter: self.last_chapter.parse_data(data, variables)?,
+            name: self.name.parse_data(data, variables)?,
+            toc_url: self.toc_url.parse_data(data, variables)?,
+            word_count: self.word_count.parse_data(data, variables)?,
         })
     }
 }

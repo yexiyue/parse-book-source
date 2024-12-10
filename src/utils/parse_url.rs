@@ -45,14 +45,11 @@ pub fn parse_url(url: &str, params: &Params, data: Option<&Value>) -> Result<Str
                 Ok(key)
             }
             "page" => {
-                let page = params.page.clone().ok_or(anyhow!("page is not found"))?;
+                let page = params.page.ok_or(anyhow!("page is not found"))?;
                 Ok(page.to_string())
             }
             "pageSize" => {
-                let page_size = params
-                    .page_size
-                    .clone()
-                    .ok_or(anyhow!("page_size is not found"))?;
+                let page_size = params.page_size.ok_or(anyhow!("page_size is not found"))?;
                 Ok(page_size.to_string())
             }
             path => {
@@ -69,16 +66,13 @@ pub fn parse_url(url: &str, params: &Params, data: Option<&Value>) -> Result<Str
 pub fn parse_template(template: &str, data: &Value, variables: &mut Variables) -> Result<String> {
     let regex = Regex::new(r"\{\{(.*?)\}\}")?;
 
-    if let Some(_) = template.find("{{") {
-        replace_all(&regex, &template, |captures| {
+    if template.contains("{{") {
+        replace_all(&regex, template, |captures| {
             let key = captures.get(1).ok_or(anyhow!("key is not found"))?;
 
-            match key.as_str() {
-                path => {
-                    let data_with_regex = JsonData::try_from(path)?;
-                    data_with_regex.parse_data(data, variables)
-                }
-            }
+            let path = key.as_str();
+            let data_with_regex = JsonData::try_from(path)?;
+            data_with_regex.parse_data(data, variables)
         })
     } else {
         match value_to_string(data, template) {

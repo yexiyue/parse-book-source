@@ -1,7 +1,6 @@
 use crate::{
     utils::{json_path, JsonData},
-    Variables,
-    BookList, BookListItem, ParseError, Result,
+    BookList, BookListItem, ParseError, Result, Variables,
 };
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};

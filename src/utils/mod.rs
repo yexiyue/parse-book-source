@@ -20,7 +20,7 @@ pub fn replace_all(
     for caps in re.captures_iter(haystack) {
         let m = caps.get(0).unwrap();
         new.push_str(&haystack[last_match..m.start()]);
-        new.push_str(&mut replacement(&caps)?);
+        new.push_str(&replacement(&caps)?);
         last_match = m.end();
     }
     new.push_str(&haystack[last_match..]);
@@ -28,7 +28,7 @@ pub fn replace_all(
 }
 
 pub fn json_path(data: &Value, path: &str) -> Result<Value> {
-    Ok(JsonPath::from_str(path)?.find(&data))
+    Ok(JsonPath::from_str(path)?.find(data))
 }
 
 pub fn split_preserving_delimiters(text: &str) -> Vec<String> {

@@ -19,11 +19,7 @@ where
 }
 
 impl Search {
-    pub async fn get_book_list(
-        &self,
-        client: &HttpClient,
-        params: Params,
-    ) -> Result<Response> {
+    pub async fn get_book_list(&self, client: &HttpClient, params: Params) -> Result<Response> {
         let url = parse_url(&self.url, &params, None)?;
         client.get(&url).await
     }

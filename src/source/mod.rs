@@ -70,11 +70,7 @@ impl TryFrom<BookSource> for JsonSource {
             source_name: value.book_source_name,
             source_type: value.book_source_type,
             source_group: value.book_source_group,
-            client: HttpClient::new(
-                &value.book_source_url,
-                &value.header,
-                value.respond_time as u64,
-            )?,
+            client: HttpClient::new(&value.book_source_url, &value.header, value.respond_time)?,
             search: Search::from(&value.search_url),
             explores,
             rule: JsonRule {

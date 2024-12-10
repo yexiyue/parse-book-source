@@ -43,12 +43,10 @@ impl HttpClient {
     fn url_with_base(&self, url: &str) -> String {
         if url.starts_with("http") {
             url.to_string()
+        } else if url.starts_with('/') {
+            format!("{}{}", self.base_url, url)
         } else {
-            if url.starts_with('/') {
-                format!("{}{}", self.base_url, url)
-            } else {
-                format!("{}/{}", self.base_url, url)
-            }
+            format!("{}/{}", self.base_url, url)
         }
     }
 

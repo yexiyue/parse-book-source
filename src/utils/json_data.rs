@@ -39,9 +39,10 @@ impl TryFrom<&str> for JsonData {
     fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
         let str = split_preserving_delimiters(value);
 
-        let mut res = JsonData::default();
-
-        res.data = str.get(0).ok_or(anyhow!("data is not found"))?.to_string();
+        let mut res = JsonData {
+            data: str.first().ok_or(anyhow!("data is not found"))?.to_string(),
+            ..Default::default()
+        };
 
         if let Some(regex) = str.get(1) {
             res.regex = Some(Regex::new(regex)?);
