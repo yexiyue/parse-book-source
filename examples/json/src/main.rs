@@ -1,17 +1,10 @@
 use std::{fs::File, thread::sleep, time::Duration};
 
-use parse_book_source::{
-    http_client::{self, HttpClient},
-    utils::{value_to_string, JsonData, Params},
-    BookSource, JsonRuleBookInfo, JsonRuleContent, JsonRuleExplore, JsonRuleSearch,
-    JsonRuleTocWith, JsonSource, Search,
-};
-use regex::Regex;
-use serde_json::{json, Value};
+use parse_book_source::{utils::Params, BookSource, JsonSource};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let file = File::open("test.json")?;
+    let file = File::open("../../test.json")?;
     let book_source: BookSource = serde_json::from_reader(file)?;
     let mut json_source = JsonSource::try_from(book_source)?;
 
@@ -39,5 +32,12 @@ async fn main() -> anyhow::Result<()> {
 
     let chapter_list = json_source.chapter_list(&book_info).await?;
     println!("{:#?}", chapter_list);
+
+    println!("等待中");
+    sleep(Duration::from_secs(1));
+    println!("等待结束");
+    let chapter = json_source.chapter_content(&chapter_list[0]).await?;
+
+    println!("{}", chapter);
     Ok(())
 }

@@ -55,9 +55,9 @@ impl TryFrom<&str> for JsonData {
     }
 }
 
-impl TryFrom<String> for JsonData {
+impl TryFrom<&String> for JsonData {
     type Error = ParseError;
-    fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
+    fn try_from(value: &String) -> std::result::Result<Self, Self::Error> {
         JsonData::try_from(value.as_str())
     }
 }

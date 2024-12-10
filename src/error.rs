@@ -10,6 +10,9 @@ pub enum ParseError {
     Regex(#[from] regex::Error),
     #[error(transparent)]
     JsonPath(#[from] jsonpath_rust::JsonPathParserError),
+
+    #[error(transparent)]
+    ParseError(#[from] std::num::ParseIntError),
     #[error(transparent)]
     OtherError(#[from] anyhow::Error),
     #[error("{0}")]

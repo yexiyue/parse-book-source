@@ -1,4 +1,4 @@
-use crate::{utils::JsonData, Variables, BookInfo, ParseError, Result};
+use crate::{utils::JsonData, BookInfo, ParseError, Result, Variables};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

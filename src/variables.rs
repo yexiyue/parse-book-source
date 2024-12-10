@@ -47,6 +47,10 @@ impl Variables {
             Ok(v.to_string())
         })
     }
+
+    pub fn insert<T: ToString>(&mut self, key: &str, value: T) {
+        self.variables.insert(key.to_string(), value.to_string());
+    }
 }
 
 #[cfg(test)]

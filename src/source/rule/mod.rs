@@ -16,5 +16,5 @@ pub struct JsonRule {
     pub content: JsonRuleContent,
     pub explore: Option<JsonRuleExplore>,
     pub search: JsonRuleSearch,
-    pub toc: JsonRuleTocWith,
+    pub toc: JsonRuleToc,
 }

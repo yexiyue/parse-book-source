@@ -18,13 +18,13 @@ pub struct RuleToc {
 }
 
 #[derive(Debug, Clone)]
-pub struct JsonRuleTocWith {
+pub struct JsonRuleToc {
     pub chapter_list: String,
     pub chapter_name: JsonData,
     pub chapter_url: JsonData,
 }
 
-impl TryFrom<&RuleToc> for JsonRuleTocWith {
+impl TryFrom<&RuleToc> for JsonRuleToc {
     type Error = ParseError;
     fn try_from(value: &RuleToc) -> std::result::Result<Self, Self::Error> {
         Ok(Self {
@@ -35,14 +35,14 @@ impl TryFrom<&RuleToc> for JsonRuleTocWith {
     }
 }
 
-impl TryFrom<RuleToc> for JsonRuleTocWith {
+impl TryFrom<RuleToc> for JsonRuleToc {
     type Error = ParseError;
     fn try_from(value: RuleToc) -> std::result::Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
 
-impl JsonRuleTocWith {
+impl JsonRuleToc {
     pub fn parse_chapter_list(
         &self,
         data: &Value,

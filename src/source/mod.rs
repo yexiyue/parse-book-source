@@ -1,7 +1,7 @@
 pub mod rule;
 use crate::{
-    utils::Params, Variables, BookInfo, BookList, BookListItem, Chapter, ChapterList,
-    ExploreItem, Result,
+    utils::Params, BookInfo, BookList, BookListItem, Chapter, ChapterList, ExploreItem, Result,
+    Variables,
 };
 use anyhow::anyhow;
 pub use rule::*;
@@ -82,7 +82,7 @@ impl TryFrom<BookSource> for JsonSource {
                 content: JsonRuleContent::try_from(value.rule_content)?,
                 explore: explore_rule,
                 search: JsonRuleSearch::try_from(value.rule_search)?,
-                toc: JsonRuleTocWith::try_from(value.rule_toc)?,
+                toc: JsonRuleToc::try_from(value.rule_toc)?,
             },
         })
     }
@@ -143,6 +143,9 @@ impl JsonSource {
     pub async fn chapter_content(&mut self, chapter: &Chapter) -> Result<String> {
         let res = chapter.get_content(&self.client).await?.json().await?;
 
-        self.rule.content.parse_content(&res, &mut self.variables)
+        self.rule
+            .content
+            .parse_content(&res, &mut self.variables, &self.client)
+            .await
     }
 }

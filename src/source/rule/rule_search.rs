@@ -4,8 +4,7 @@ use serde_json::Value;
 
 use crate::{
     utils::{json_path, JsonData},
-    Variables,
-    BookList, BookListItem, ParseError, Result,
+    BookList, BookListItem, ParseError, Result, Variables,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

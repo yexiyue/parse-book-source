@@ -81,7 +81,10 @@ pub fn parse_template(template: &str, data: &Value, variables: &mut Variables) -
             }
         })
     } else {
-        value_to_string(data, template)
+        match value_to_string(data, template) {
+            Ok(s) => Ok(s),
+            Err(_) => Ok(template.to_string()),
+        }
     }
 }
 
